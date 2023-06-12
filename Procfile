@@ -1,1 +1,1 @@
-web: gunicorn supervision_nucleaire:app
+web: gunicorn app:app
