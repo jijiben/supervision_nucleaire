@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Production nuclear</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <img style="width: 200px;height: 200px;" src="{{ url_for('static', filename='edf.jpg') }}" alt="Logo">
+
+
+    <canvas id="barPlot1" style="display: block;box-sizing: border-box;height: 1000;width: 1100;"></canvas>
+    <canvas id="barPlot2" style="display: block;box-sizing: border-box;height: 600;width: 1100;"></canvas>
+
+    <script>
+        // Variables to hold the chart instances
+        let chart1;
+        let chart2;
+
+        // Function to update the first bar chart
+        function updateBarChart1() {
+            // Destroy the existing chart if it exists
+            if (chart1) {
+                chart1.destroy();
+            }
+
+            // Delay for a short period to ensure the chart is properly destroyed
+            setTimeout(() => {
+                // Get the updated data for the first chart
+                const data1 = JSON.parse('{{ sum_data | tojson }}');
+                const dates1 = Object.keys(data1);
+                const hours1 = Object.keys(data1[dates1[0]]);
+                const datasets1 = hours1.map(hour => ({
+                    label: hour,
+                    data: dates1.map(date => data1[date][hour]),
+                }));
+
+                // Update the first chart
+                const ctx1 = document.getElementById('barPlot1').getContext('2d');
+                chart1 = new Chart(ctx1, {
+                    type: 'bar',
+                    data: {
+                        labels: dates1,
+                        datasets: datasets1,
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Somme de la production infrajournalière par heure du jour sur la période 01/12/2022 à 10/12/2022.'
+                            },
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Date',
+                                },
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Production',
+                                },
+                            },
+                        },
+                    },
+                });
+            }, 100);
+        }
+
+        // Function to update the second bar chart
+        function updateBarChart2() {
+            // Destroy the existing chart if it exists
+            if (chart2) {
+                chart2.destroy();
+            }
+
+            // Delay for a short period to ensure the chart is properly destroyed
+            setTimeout(() => {
+                // Get the updated data for the second chart
+                const production_per_hour = JSON.parse('{{ average_data | tojson }}');
+                const hours2 = Object.keys(production_per_hour);
+                const production2 = Object.values(production_per_hour);
+
+                // Update the second chart
+                const ctx2 = document.getElementById('barPlot2').getContext('2d');
+                chart2 = new Chart(ctx2, {
+                    type: 'bar',
+                    data: {
+                        labels: hours2,
+                        datasets: [{
+                            label: 'Production per Hour',
+                            data: production2,
+                            backgroundColor: 'rgba(0, 123, 255, 0.5)',
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'La moyenne de production heure par heure'
+                            },
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }, 100);
+        }
+
+        // Function to refresh the charts
+        function refreshCharts() {
+            updateBarChart1();
+            updateBarChart2();
+        }
+
+        // Initial rendering of the charts
+        refreshCharts();
+
+        // Refresh interval (1 day)
+        setInterval(refreshCharts, 86400000);
+
+    </script>
+</body>
+</html>
