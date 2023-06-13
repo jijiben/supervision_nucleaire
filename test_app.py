@@ -142,11 +142,3 @@ class AppTestCase(unittest.TestCase):
         # Assert that the result matches the expected result
         self.assertEqual(result, expected_result)
 
-    def test_production_average_per_hour(self):
-        """Test for related function :production_average_per_hour"""
-        pass
-
-    def test_transform_data(self):
-        """Test for related function :transform_data"""
-
-        pass
