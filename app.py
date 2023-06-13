@@ -73,8 +73,7 @@ def get_actual_generations_per_unit(start_date, end_date, access_token):
 
     Args:
         start_date (str): Start date in ISO format.
-        end_date (str): End date in ISO format. Note that the API does not include the last day, so if you want to include the
-            data for the end_date, please increment it by one day.
+        end_date (str): End date in ISO format.
         access_token (str): Access token for authentication.
 
     Returns:
@@ -205,15 +204,18 @@ def get_data():
 
     Query Parameters:
         start_date (str): Start date in ISO format. Default: '2022-12-01T00:00:00+02:00'
-        end_date (str): End date in ISO format. Default: '2022-12-11T00:00:00+02:00'
+        end_date (str): End date in ISO format, included in the range date. Default: '2022-12-10T00:00:00+02:00'
 
     Returns:
         dict: Actual generation data for the specified date range.
     """
 
     start_date = request.args.get('start_date', '2022-12-01T00:00:00+02:00')
-    end_date = request.args.get('end_date', '2022-12-11T00:00:00+02:00')
-    data = get_actual_generations_per_unit(start_date, end_date)
+    end_date = request.args.get('end_date', '2022-12-10T00:00:00+02:00')
+    # Note that the API does not include the last day; it should be incremented by one day.
+    included_end_date = datetime.datetime.fromisoformat(end_date) + datetime.timedelta(days=1)
+    included_end_date_string = included_end_date.isoformat()
+    data = get_actual_generations_per_unit(start_date, included_end_date_string)
     return jsonify(data)
 
 
@@ -224,15 +226,18 @@ def index():
 
      Query Parameters:
          start_date (str): Start date in ISO format. Default: '2022-12-01T00:00:00+02:00'
-         end_date (str): End date in ISO format. Default: '2022-12-11T00:00:00+02:00'
+         end_date (str): End date in ISO format, included in the range date. Default: '2022-12-10T00:00:00+02:00'
 
      Returns:
          rendered template: HTML template with production statistics.
      """
     start_date = request.args.get('start_date', '2022-12-01T00:00:00+02:00')
-    end_date = request.args.get('end_date', '2022-12-11T00:00:00+02:00')
+    end_date = request.args.get('end_date', '2022-12-10T00:00:00+02:00')
+    # Note that the API does not include the last day; it should be incremented by one day.
+    included_end_date = datetime.datetime.fromisoformat(end_date) + datetime.timedelta(days=1)
+    included_end_date_string = included_end_date.isoformat()
 
-    data = get_actual_generations_per_unit(start_date, end_date)
+    data = get_actual_generations_per_unit(start_date, included_end_date_string)
     data = data.get('actual_generations_per_unit')
 
     production_sum_per_hour_of_day_data = production_sum_per_hour_of_day(data)
