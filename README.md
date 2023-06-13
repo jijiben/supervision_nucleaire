@@ -47,20 +47,32 @@ The Flask supervision-nucleaire App is a web application that retrieves and disp
    ```shell
    $ python app.py
    ```
-
    The app will be accessible at `http://localhost:5000`.
 
 ## Usage
 
 - Access the web app in your browser at `http://localhost:5000`.
 - The default date range is set to 01/12/2022 to 10/12/2022.
+- To view data for a custom date range, you can modify the start and end dates by appending the `start_date` and `end_date` query parameters to the URL. The dates should be in ISO format.
+  - Example for end route '/': `http://localhost:5000/?start_date=2022-11-01T00:00:00%2B02:00&end_date=2022-11-11T00:00:00%2B02:00`
+  - Example for end route '/data': `http://localhost:5000/data?start_date=2022-11-01T00:00:00%2B02:00&end_date=2022-11-11T00:00:00%2B02:00`
+- The data will be updated based on the specified date range.
 - View the average values per hour and the sum of values per hour of each day.
-- The data is visualized using charts.
+- The data is visualized using charts:
+
+  1. **Sum of Infra-Hourly Production per Hour of the Day**: This chart shows the total production for each hour of the day over the selected date range.
+
+  2. **Average Production per Hour**: This chart displays the average production per hour over the selected date range.
+
+    The charts are automatically updated every 24 hours. You can also manually refresh the charts by clicking the refresh button.
 
 ## API Documentation
 
-- The app retrieves data from the RTE API. Refer to the [API documentation](https://data.rte-france.com/catalog/-/api/doc/user-guide/Actual+Generation/1.1) for more information on the API endpoints and parameters.
-- The used enpoint is: /actual_generations_per_unit
+- The app retrieves data from the RTE API. Refer to the [API documentation](https://data.rte-france.com/catalog/-/api/doc/user-guide/Actual+Generation/1.1#_Toc506996007) for more information on the API endpoints and parameters.
+- The used endpoint is: `/actual_generations_per_unit`.
+- The API provides one value per time interval, following the rules:
+  - AGPU-RG07: There is no handling of daylight saving time changes.
+  - The service always returns 24 values, one value per hour.
 
 ## Testing
 
@@ -77,6 +89,14 @@ The Flask supervision-nucleaire App is a web application that retrieves and disp
 - The application is deployed on Heroku and can be accessed at the following links:
   - [Flask supervision-nucleaire App](https://supervision-nucleaire.herokuapp.com/)
   - [Data Endpoint](https://supervision-nucleaire.herokuapp.com/data)
+
+## Contributing
+
+Contributions are welcome! If you have any suggestions, bug reports, or feature requests, please feel free to contribute.
+
+I personally enjoyed working on this project, and I hope that it showcases my skills and enthusiasm for the position. I am highly motivated to work with your team and contribute to the success of the project.
+
+Thank you for considering my application, and I look forward to the opportunity to work together!
 
 ## License
 

@@ -7,7 +7,6 @@
 <body>
   <img style="width: 200px;height: 200px;" src="{{ url_for('static', filename='edf.jpg') }}" alt="Logo">
 
-
     <canvas id="barPlot1" style="display: block;box-sizing: border-box;height: 1000;width: 1100;"></canvas>
     <canvas id="barPlot2" style="display: block;box-sizing: border-box;height: 600;width: 1100;"></canvas>
 
@@ -47,7 +46,7 @@
                         plugins: {
                             title: {
                                 display: true,
-                                text: 'Somme de la production infrajournalière par heure du jour sur la période 01/12/2022 à 10/12/2022.'
+                                text: `Somme de la production infrajournalière par heure du jour sur la période ${'{{ start_date }}'} à ${'{{ end_date }}'}.`
                             },
                         },
                         scales: {
@@ -80,8 +79,8 @@
             setTimeout(() => {
                 // Get the updated data for the second chart
                 const production_per_hour = JSON.parse('{{ average_data | tojson }}');
-                const hours2 = Object.keys(production_per_hour);
-                const production2 = Object.values(production_per_hour);
+                const hours2 = Object.keys(production_per_hour)
+                const production2 = hours2.map(hour => production_per_hour[hour]); // Map the sorted keys to corresponding values
 
                 // Update the second chart
                 const ctx2 = document.getElementById('barPlot2').getContext('2d');
@@ -100,7 +99,7 @@
                         plugins: {
                             title: {
                                 display: true,
-                                text: 'La moyenne de production heure par heure'
+                                text: `La moyenne de production heure par heure ${'{{ start_date }}'} à ${'{{ end_date }}'}.`
                             },
                         },
                         scales: {

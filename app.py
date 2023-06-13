@@ -1,6 +1,6 @@
 import datetime
 from functools import wraps
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, request
 import pandas as pd
 import requests
 from requests.auth import HTTPBasicAuth
@@ -73,7 +73,8 @@ def get_actual_generations_per_unit(start_date, end_date, access_token):
 
     Args:
         start_date (str): Start date in ISO format.
-        end_date (str): End date in ISO format.
+        end_date (str): End date in ISO format. Note that the API does not include the last day, so if you want to include the
+            data for the end_date, please increment it by one day.
         access_token (str): Access token for authentication.
 
     Returns:
@@ -158,7 +159,7 @@ def transform_data(data):
 
 def production_average_per_hour(data):
     """
-    Calculates the average value per hour from the transformed data.
+    Calculates the average value for all unit per hour based on the data returned by get_actual_generations_per_unit.
 
     Args:
         data (list): Actual generation data.
@@ -177,7 +178,7 @@ def production_average_per_hour(data):
 
 def production_sum_per_hour_of_day(data):
     """
-    Calculates the sum of values per hour of each day from the transformed data.
+    Calculates the sum of values per hour of each day based on the data returned by get_actual_generations_per_unit.
 
     Args:
         data (list): Actual generation data.
@@ -199,16 +200,37 @@ def production_sum_per_hour_of_day(data):
 
 @app.route('/data')
 def get_data():
-    start_date = '2022-12-01T00:00:00+02:00'
-    end_date = '2022-12-11T00:00:00+02:00'
+    """
+    Retrieves actual generation data for the specified date range.
+
+    Query Parameters:
+        start_date (str): Start date in ISO format. Default: '2022-12-01T00:00:00+02:00'
+        end_date (str): End date in ISO format. Default: '2022-12-11T00:00:00+02:00'
+
+    Returns:
+        dict: Actual generation data for the specified date range.
+    """
+
+    start_date = request.args.get('start_date', '2022-12-01T00:00:00+02:00')
+    end_date = request.args.get('end_date', '2022-12-11T00:00:00+02:00')
     data = get_actual_generations_per_unit(start_date, end_date)
     return jsonify(data)
 
 
 @app.route('/')
 def index():
-    start_date = '2022-12-01T00:00:00+02:00'
-    end_date = '2022-12-11T00:00:00+02:00'
+    """
+     Renders the index page with production statistics.
+
+     Query Parameters:
+         start_date (str): Start date in ISO format. Default: '2022-12-01T00:00:00+02:00'
+         end_date (str): End date in ISO format. Default: '2022-12-11T00:00:00+02:00'
+
+     Returns:
+         rendered template: HTML template with production statistics.
+     """
+    start_date = request.args.get('start_date', '2022-12-01T00:00:00+02:00')
+    end_date = request.args.get('end_date', '2022-12-11T00:00:00+02:00')
 
     data = get_actual_generations_per_unit(start_date, end_date)
     data = data.get('actual_generations_per_unit')
@@ -217,7 +239,8 @@ def index():
     production_average_per_hour_data = production_average_per_hour(data)
 
     return render_template('index.html',
-                           average_data=production_average_per_hour_data, sum_data=production_sum_per_hour_of_day_data)
+                           average_data=production_average_per_hour_data, sum_data=production_sum_per_hour_of_day_data,
+                           start_date=start_date, end_date=end_date)
 
 
 if __name__ == '__main__':
