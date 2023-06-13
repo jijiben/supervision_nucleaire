@@ -222,17 +222,18 @@ def get_data():
 @app.route('/')
 def index():
     """
-     Renders the index page with production statistics.
+    Renders the index page with production statistics.
 
-     Query Parameters:
-         start_date (str): Start date in ISO format. Default: '2022-12-01T00:00:00+02:00'
-         end_date (str): End date in ISO format, included in the range date. Default: '2022-12-10T00:00:00+02:00'
+    Query Parameters:
+        start_date (str): Start date in ISO format. Default: '2022-12-01T00:00:00+02:00'
+        end_date (str): End date in ISO format, included in the range date. Default: '2022-12-10T00:00:00+02:00'
 
-     Returns:
-         rendered template: HTML template with production statistics.
-     """
+    Returns:
+        rendered template: HTML template with production statistics.
+    """
     start_date = request.args.get('start_date', '2022-12-01T00:00:00+02:00')
     end_date = request.args.get('end_date', '2022-12-10T00:00:00+02:00')
+
     # Note that the API does not include the last day; it should be incremented by one day.
     included_end_date = datetime.datetime.fromisoformat(end_date) + datetime.timedelta(days=1)
     included_end_date_string = included_end_date.isoformat()
@@ -240,11 +241,16 @@ def index():
     data = get_actual_generations_per_unit(start_date, included_end_date_string)
     data = data.get('actual_generations_per_unit')
 
-    production_sum_per_hour_of_day_data = production_sum_per_hour_of_day(data)
-    production_average_per_hour_data = production_average_per_hour(data)
+    if len(data) > 0:
+        production_sum_per_hour_of_day_data = production_sum_per_hour_of_day(data)
+        production_average_per_hour_data = production_average_per_hour(data)
+    else:
+        error_message = "There is a problem with the filled period. Please check the date range."
+        return render_template('error.html', error_message=error_message)
 
     return render_template('index.html',
-                           average_data=production_average_per_hour_data, sum_data=production_sum_per_hour_of_day_data,
+                           average_data=production_average_per_hour_data,
+                           sum_data=production_sum_per_hour_of_day_data,
                            start_date=start_date, end_date=end_date)
 
 
